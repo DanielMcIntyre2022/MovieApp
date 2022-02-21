@@ -94,6 +94,12 @@ label {
 
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid transparent;
+    background: url(../assets/film-svgrepo-com.svg);
+    cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
