@@ -1,7 +1,7 @@
-// create app object //
+// Create app object //
 const movieMood = {}
 
-// create variables for API information //
+// Variables for API information //
 movieMood.apiURL = `https://api.themoviedb.org/3/discover/movie`;
 movieMood.apiKey = `c7b080a6a4bebf767174709ad40d8d83`;
 
@@ -9,28 +9,37 @@ movieMood.apiKey = `c7b080a6a4bebf767174709ad40d8d83`;
 // Event Listener: Listen for the user input //
 movieMood.eventListenerSetup = function () {
 
+    // Show year value under slider bar
+    let slider = document.getElementById("user-input-two");
+    let output = document.getElementById("selectedYear");
+
+    // Display slider value on the page
+    output.innerHTML = slider.value;
+    
+    // Update the with current slider value as it is moved
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+    }
+    
     const userInput = document.querySelector('button');
 
     userInput.addEventListener("click", function () {
 
         // Get search parmeter inputs from user //
-
         const userGenreInput = document.getElementById("user-input-one");
         const userGenreValue = userGenreInput.value;
-        console.log(userGenreValue);
 
         const userDecadeInput = document.getElementById("user-input-two");
         const userDecadeValue = userDecadeInput.value;
-        console.log(userDecadeValue);
 
         movieMood.getMovie(userDecadeValue, userGenreValue);
     });
 
 
-    // Create method to retrive data from API //
+    // Method to retrive data from API //
     movieMood.getMovie = function (userDecadeValue, userGenreValue) {
 
-        // construct URL endpoint and specify the paremeters we want to include  //
+        // Construct URL endpoint and specify the paremeters we want to include  //
         const url = new URL(movieMood.apiURL);
         url.search = new URLSearchParams({
             // include URL parms here
@@ -40,43 +49,32 @@ movieMood.eventListenerSetup = function () {
         });
 
 
-        // pass in new URL featuring params provided by the URLSearchParams constructor //
+        // Pass in new URL featuring params provided by the URLSearchParams constructor //
         fetch(url)
             .then(function (response) {
-                // parse this response into JSON
-                // return JSON response so that it can be used in the next function
-                console.log(response);
+                // Parse this response into JSON
+                // Return JSON response so that it can be used in the next function
                 return response.json();
             })
-            //parse the JSON Promise response and log out readable data (AKA data in JSON format)
+            //Parse the JSON Promise response and log out readable data (AKA data in JSON format)
             .then(function (jsonResponse) {
-                console.log(jsonResponse);
 
-                // movieMood.displayMovies(jsonResponse);
-
-                // get the total number query results pages
+                // Get the total number query results pages
                 let totalPages = jsonResponse.total_pages;
-                console.log('Total pages to choose from: ', totalPages);
                 // Make sure we have a full page of results
                 totalPages = totalPages - 1;
-                console.log('Total pages - 1: ', totalPages);
                 // Gereate a random page number to return
                 const randomPage = Math.floor(Math.random() * `${totalPages}`) + 1;
-                console.log('This is the random page to display: ', randomPage);
-
 
                 movieMood.getDetails(userDecadeValue, userGenreValue, randomPage);
             });
     }
 
 
-
     // Second API call to get specific page of results (and combine poster_path results to grab poster img files)
     movieMood.getDetails = function (userDecadeValue, userGenreValue,randomPage) {
-        console.log('Random page we will use: ',randomPage);
-        console.log('Checking passed year and genre variables: ', userDecadeValue, userGenreValue)
 
-        // construct URL endpoint and specify the paremeters we want to include  //
+        // Construct URL endpoint and specify the paremeters we want to include  //
         const url = new URL(movieMood.apiURL);
         url.search = new URLSearchParams({
             // include URL parms here
@@ -87,18 +85,15 @@ movieMood.eventListenerSetup = function () {
         });
 
 
-        // pass in new URL featuring params provided by the URLSearchParams constructor //
+        // Pass in new URL featuring params provided by the URLSearchParams constructor //
         fetch(url)
             .then(function (responseTwo) {
-                // parse this response into JSON
-                // return JSON response so that it can be used in the next function
-                console.log(responseTwo);
+                // Parse this response into JSON
+                // Return JSON response so that it can be used in the next function
                 return responseTwo.json();
             })
-            //parse the JSON Promise response and log out readable data (AKA data in JSON format)
+            //Parse the JSON Promise response and log out readable data (AKA data in JSON format)
             .then(function (jsonResponseTwo) {
-                console.log(jsonResponseTwo);
-
                 movieMood.displayMovies(jsonResponseTwo);
             });
     }
@@ -109,43 +104,42 @@ movieMood.eventListenerSetup = function () {
 // Create method to display to display API data //
 movieMood.displayMovies = function (jsonResponseTwo) {
 
-    // clear the old movie selections //
+    // Clear the old movie selections //
     const ulElement = document.querySelector('#movie-display-ul');
     ulElement.innerHTML = '';
 
     
-    // create a loop to display the first 3 movies returned from the random page of query results array//
+    // Display the first 3 movies returned from the random page of query results array//
     for (let i = 0; i <= 2; i++) {
-        // test our data gets in here
-        // console.log(movieTitle);
-        
-        const movieId = jsonResponseTwo.results[i].id;
-        console.log(movieId);
+        const basePosterUrl = 'https://image.tmdb.org/t/p/w300';
         const movieTitle = jsonResponseTwo.results[i].title;
         const moviePoster = jsonResponseTwo.results[i].poster_path;
         const movieSynopsis = jsonResponseTwo.results[i].overview;
 
-        // create li element for movies to be appended onto page
+        // Create li element for movies to be appended onto page
         const liElement = document.createElement('li');
         liElement.classList.add('movie');
 
-        // // create h2 element for movie title to be appended
+        // Create h2 element for movie title to be appended
         const heading = document.createElement('h2');
         heading.textContent = movieTitle;
 
-        // // create img element for movie poster to be apended onto page 
+        // Create img element for movie poster to be appended onto page 
         const image = document.createElement('img');
-        image.src = moviePoster;
+        if (!moviePoster) {
+            image.src = './assets/noPosterImg.jpg';
+        } else {
+            image.src = basePosterUrl+moviePoster;
+        }
 
-        // // create p element for movie synopsis to be appended onto page
+        // Create p element for movie synopsis to be appended onto page
         const paragraph = document.createElement('p');
-        console.log(paragraph);
 
-        // paragraph.classList.add("synopsis");
+        // Paragraph.classList.add ("synopsis");
         paragraph.textContent = movieSynopsis;
-        liElement.append(heading, paragraph);
+        liElement.append(image, heading, paragraph);
 
-        // add the Li to the ul //
+        // Add the li to the ul //
         ulElement.appendChild(liElement);
     };
 }
@@ -156,7 +150,5 @@ movieMood.init = function () {
     movieMood.eventListenerSetup();
 };
 
-// call init method //
+// Call init method //
 movieMood.init();
-
-
